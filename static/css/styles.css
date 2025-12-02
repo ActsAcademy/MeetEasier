@@ -156,15 +156,12 @@ body {
       background: black;
       padding: 30px; }
       #single-room__wrap .full-height .left-col #single-room__room-name {
-        font-size: 10vw;
-        text-transform: uppercase;
-        text-align: center; }
+        font-size: 3vw; }
       #single-room__wrap .full-height .left-col #single-room__room-status {
         text-transform: uppercase;
         padding: 4% 0;
         font-size: 18vw;
-        font-weight: lighter;
-        text-align: center; }
+        font-weight: lighter; }
       #single-room__wrap .full-height .left-col #single-room__meeting-title {
         font-size: 2.7vw;
         font-weight: lighter; }

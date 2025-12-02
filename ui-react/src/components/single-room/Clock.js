@@ -28,10 +28,10 @@ class Clock extends Component {
     return (
       <div id="single-room__clock">
         <div id="single-room__time">
-          {this.state.date.toLocaleTimeString([],{hour12: false, hour: "2-digit", minute: "2-digit"})}
+          {this.state.date.toLocaleTimeString([],{hour: '2-digit', minute: '2-digit', hour12: false})}
         </div>
         <div id="single-room__date">
-          {this.state.date.toLocaleDateString([],{day: '2-digit', month: 'long'})}
+          {this.state.date.toLocaleDateString('en-GB', {month: 'long', day: '2-digit'})}
         </div>
       </div>
 

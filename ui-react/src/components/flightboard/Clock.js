@@ -25,9 +25,13 @@ class Clock extends Component {
   }
 
   render() {
+  const hours = String(this.state.date.getHours()).padStart(2, '0');
+  const minutes = String(this.state.date.getMinutes()).padStart(2, '0');
+  const seconds = String(this.state.date.getSeconds()).padStart(2, '0');
+
     return (
       <span id="clock">
-        {this.state.date.toLocaleTimeString()}
+       {`${hours}:${minutes}:${seconds}`}
       </span>
     );
   }

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 const Details = ({room, details}) => (
   <div id="single-room__details">
-    { details.appointmentExists &&
+    { details.appointmentExists && room && Array.isArray(room.Appointments) && room.Appointments[0] &&
       <div id="single-room__meeting-title">
         <span id="single-room__next-up">
           {details.nextUp}
@@ -18,10 +18,10 @@ const Details = ({room, details}) => (
 
 const Time = ({room, details}) => (
   <div id="single-room__meeting-time">
-    { details.appointmentExists &&
-      new Date(parseInt(room.Appointments[0].Start, 10)).toLocaleTimeString([], {weekday: 'short', hour12: false, hour: '2-digit', minute: '2-digit'})
+    { details.appointmentExists && room && Array.isArray(room.Appointments) && room.Appointments[0] &&
+      (new Date(parseInt(room.Appointments[0].Start, 10)).toLocaleTimeString([], {weekday: 'short', hour: '2-digit', minute: '2-digit'})
       + ' - ' + 
-      new Date(parseInt(room.Appointments[0].End, 10)).toLocaleTimeString([], {hour12: false, hour: '2-digit', minute: '2-digit'})
+      new Date(parseInt(room.Appointments[0].End, 10)).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'}))
     }
   </div>
 );
@@ -29,7 +29,7 @@ const Time = ({room, details}) => (
 const Organizer = ({room, details}) => {
   return(
     <div id="single-room__meeting-organizer">
-      {details.appointmentExists &&
+      {details.appointmentExists && room && Array.isArray(room.Appointments) && room.Appointments[0] &&
         room.Appointments[0].Organizer
       }
     </div>
