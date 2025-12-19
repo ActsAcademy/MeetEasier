@@ -6,6 +6,7 @@ import RoomStatusBlock from './RoomStatusBlock';
 import Sidebar from './Sidebar';
 import Socket from '../global/Socket';
 import Spinner from '../global/Spinner';
+import NfcScanner from './NfcScanner';
 
 class Display extends Component {
   constructor(props) {
@@ -20,7 +21,8 @@ class Display extends Component {
         timesPresent: false,
         upcomingAppointments: false,
         nextUp: ''
-      }
+      },
+      lastNfcUid: ''
     }
     // track last known busy state to avoid redundant LED calls
     this._ledIsBusy = null;
@@ -197,16 +199,23 @@ class Display extends Component {
     }, () => this.processRoomDetails());
   }
 
+  handleNfcScan = (uid) => {
+    // eslint-disable-next-line no-console
+    console.log('NFC UID received in Display:', uid);
+    this.setState({ lastNfcUid: uid });
+  }
+
   componentDidMount = () => {
     this.getRoomsData();
   };
 
   render() {
-    const { response, room, roomDetails } = this.state;
+    const { response, room, roomDetails, lastNfcUid } = this.state;
 
     return (
       <div>
         <Socket response={this.handleSocket}/>
+        <NfcScanner onUidScanned={this.handleNfcScan} />
 
         { response ?
           <div className="row expanded full-height">
@@ -216,6 +225,15 @@ class Display extends Component {
         :
           <Spinner />
         }
+
+        {lastNfcUid && (
+          <div className="nfc-uid-overlay">
+            <div className="nfc-uid-display">
+              <span className="nfc-uid-label">NFC Tag UID:</span>
+              <span className="nfc-uid-value">{lastNfcUid}</span>
+            </div>
+          </div>
+        )}
       </div>
     );
   }

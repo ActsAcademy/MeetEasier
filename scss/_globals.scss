@@ -361,3 +361,155 @@ body {
     }
   }
 }
+
+// NFC Scanner styles
+.nfc-scanner {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.8);
+  border-radius: 8px;
+  padding: 15px 20px;
+  min-width: 200px;
+
+  .nfc-scanner__status {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    color: $grayLight;
+  }
+
+  .nfc-scanner__icon {
+    margin-right: 8px;
+    font-size: 18px;
+  }
+
+  .nfc-scanner__scanning {
+    display: flex;
+    align-items: center;
+    color: $yellow;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+
+  .nfc-scanner__ready {
+    display: flex;
+    align-items: center;
+    color: $grayLight;
+  }
+
+  .nfc-scanner__result {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid $gray;
+  }
+
+  .nfc-scanner__label {
+    font-size: 12px;
+    color: $grayLight;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .nfc-scanner__uid {
+    font-size: 18px;
+    font-weight: bold;
+    color: $green;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 2px;
+    word-break: break-all;
+  }
+
+  .nfc-scanner__history {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid $gray;
+  }
+
+  .nfc-scanner__history-title {
+    font-size: 11px;
+    color: $grayLight;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .nfc-scanner__history-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .nfc-scanner__history-item {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    padding: 4px 0;
+    color: $grayLight;
+  }
+
+  .nfc-scanner__history-uid {
+    font-family: 'Courier New', monospace;
+  }
+
+  .nfc-scanner__history-time {
+    color: $gray;
+    margin-left: 10px;
+  }
+}
+
+// NFC UID Overlay (large display when scanned)
+.nfc-uid-overlay {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1001;
+  animation: slideUp 0.3s ease-out;
+}
+
+.nfc-uid-display {
+  background: linear-gradient(135deg, $grayDark 0%, #1a1a1a 100%);
+  border: 2px solid $green;
+  border-radius: 12px;
+  padding: 20px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.nfc-uid-label {
+  font-size: 14px;
+  color: $grayLight;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+}
+
+.nfc-uid-value {
+  font-size: 32px;
+  font-weight: bold;
+  color: $green;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 4px;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
