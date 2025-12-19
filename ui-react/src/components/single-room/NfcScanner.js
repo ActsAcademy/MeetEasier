@@ -5,35 +5,41 @@ import PropTypes from 'prop-types';
  * NfcScanner Component for Qbic TD-1050 Pro
  *
  * This component captures NFC tag UIDs from the device's HID keyboard mode.
- * When an NFC tag is scanned, the TD-1050 "types" the UID as keyboard input,
- * typically followed by an Enter key.
+ * When an NFC tag is scanned, the TD-1050 "types" the UID as keyboard input
+ * (hex digits only, no Enter key sent).
  *
- * The component listens for rapid keystrokes (characteristic of HID input)
- * and displays the captured UID.
+ * The component captures all alphanumeric keystrokes and uses a timeout
+ * to detect when the scan is complete.
  */
 class NfcScanner extends Component {
   constructor(props) {
     super(props);
     this.state = {
       lastScannedUid: '',
-      isScanning: false,
+      currentBuffer: '',
+      isReceiving: false,
+      showSuccess: false,
       scanHistory: []
     };
 
     // Buffer for accumulating keystrokes
     this._inputBuffer = '';
-    this._lastKeyTime = 0;
 
-    // HID readers typically type faster than 50ms between keystrokes
-    this._HID_THRESHOLD_MS = 50;
-
-    // Timeout to clear buffer if no rapid input continues
+    // Timeout to detect end of input (no Enter key from TD-1050)
     this._bufferTimeout = null;
+
+    // Timeout to hide success message
+    this._successTimeout = null;
+
+    // Idle time before processing buffer (ms)
+    this._IDLE_TIMEOUT_MS = 300;
   }
 
   componentDidMount() {
     // Listen for keyboard events globally
     document.addEventListener('keydown', this.handleKeyDown);
+    // eslint-disable-next-line no-console
+    console.log('NfcScanner: Component mounted, listening for keyboard input');
   }
 
   componentWillUnmount() {
@@ -41,21 +47,13 @@ class NfcScanner extends Component {
     if (this._bufferTimeout) {
       clearTimeout(this._bufferTimeout);
     }
+    if (this._successTimeout) {
+      clearTimeout(this._successTimeout);
+    }
   }
 
   handleKeyDown = (event) => {
-    const currentTime = Date.now();
-    const timeSinceLastKey = currentTime - this._lastKeyTime;
-
-    // Check if this is rapid input (HID keyboard mode)
-    const isRapidInput = timeSinceLastKey < this._HID_THRESHOLD_MS;
-
-    // If it's been too long since last key, reset the buffer
-    if (!isRapidInput && this._inputBuffer.length > 0 && timeSinceLastKey > 200) {
-      this._inputBuffer = '';
-    }
-
-    // Enter key signals end of NFC scan
+    // Enter key - process buffer immediately if we have content
     if (event.key === 'Enter') {
       if (this._inputBuffer.length > 0) {
         this.processScannedUid(this._inputBuffer);
@@ -65,35 +63,42 @@ class NfcScanner extends Component {
       return;
     }
 
-    // Only capture alphanumeric characters (UIDs are typically hex)
+    // Capture alphanumeric characters (UIDs are hex: 0-9, A-F)
+    // Also accept lowercase a-f which we'll convert to uppercase
     if (event.key.length === 1 && /[a-fA-F0-9]/.test(event.key)) {
-      // If this is rapid input or starting a new scan
-      if (isRapidInput || this._inputBuffer.length === 0) {
-        this._inputBuffer += event.key.toUpperCase();
-        this._lastKeyTime = currentTime;
+      // Add character to buffer
+      this._inputBuffer += event.key.toUpperCase();
 
-        // Show scanning state
-        if (!this.state.isScanning) {
-          this.setState({ isScanning: true });
-        }
+      // Update UI to show receiving state
+      this.setState({
+        isReceiving: true,
+        currentBuffer: this._inputBuffer,
+        showSuccess: false
+      });
 
-        // Clear buffer timeout and set a new one
-        if (this._bufferTimeout) {
-          clearTimeout(this._bufferTimeout);
-        }
-
-        // Auto-process after 500ms of no input (fallback if no Enter key)
-        this._bufferTimeout = setTimeout(() => {
-          if (this._inputBuffer.length >= 4) {
-            this.processScannedUid(this._inputBuffer);
-          }
-          this._inputBuffer = '';
-          this.setState({ isScanning: false });
-        }, 500);
-
-        // Prevent default to avoid interfering with other inputs
-        event.preventDefault();
+      // Clear any existing timeout
+      if (this._bufferTimeout) {
+        clearTimeout(this._bufferTimeout);
       }
+
+      // Set timeout to process buffer after idle period
+      this._bufferTimeout = setTimeout(() => {
+        if (this._inputBuffer.length >= 4) {
+          this.processScannedUid(this._inputBuffer);
+        } else {
+          // Too short, probably not an NFC scan - clear it
+          // eslint-disable-next-line no-console
+          console.log('NfcScanner: Buffer too short, clearing:', this._inputBuffer);
+        }
+        this._inputBuffer = '';
+        this.setState({
+          isReceiving: false,
+          currentBuffer: ''
+        });
+      }, this._IDLE_TIMEOUT_MS);
+
+      // Prevent character from being typed elsewhere
+      event.preventDefault();
     }
   }
 
@@ -101,17 +106,29 @@ class NfcScanner extends Component {
     const formattedUid = uid.toUpperCase();
 
     // eslint-disable-next-line no-console
-    console.log('NFC Tag Scanned - UID:', formattedUid);
+    console.log('NfcScanner: Card scanned! UID:', formattedUid);
+
+    // Clear success timeout if exists
+    if (this._successTimeout) {
+      clearTimeout(this._successTimeout);
+    }
 
     // Update state with the scanned UID
     this.setState(prevState => ({
       lastScannedUid: formattedUid,
-      isScanning: false,
+      isReceiving: false,
+      currentBuffer: '',
+      showSuccess: true,
       scanHistory: [
         { uid: formattedUid, timestamp: new Date() },
         ...prevState.scanHistory.slice(0, 4) // Keep last 5 scans
       ]
     }));
+
+    // Hide success message after 5 seconds
+    this._successTimeout = setTimeout(() => {
+      this.setState({ showSuccess: false });
+    }, 5000);
 
     // Call the callback if provided
     if (this.props.onUidScanned) {
@@ -129,16 +146,21 @@ class NfcScanner extends Component {
   }
 
   render() {
-    const { lastScannedUid, isScanning, scanHistory } = this.state;
+    const { lastScannedUid, currentBuffer, isReceiving, showSuccess, scanHistory } = this.state;
     const { showHistory } = this.props;
 
     return (
       <div className="nfc-scanner">
         <div className="nfc-scanner__status">
-          {isScanning ? (
-            <div className="nfc-scanner__scanning">
+          {isReceiving ? (
+            <div className="nfc-scanner__receiving">
               <span className="nfc-scanner__icon">📡</span>
-              <span>Scanning...</span>
+              <span>Receiving: {currentBuffer}</span>
+            </div>
+          ) : showSuccess ? (
+            <div className="nfc-scanner__success">
+              <span className="nfc-scanner__icon">✅</span>
+              <span>Card Scanned!</span>
             </div>
           ) : (
             <div className="nfc-scanner__ready">
@@ -149,7 +171,7 @@ class NfcScanner extends Component {
         </div>
 
         {lastScannedUid && (
-          <div className="nfc-scanner__result">
+          <div className={`nfc-scanner__result ${showSuccess ? 'nfc-scanner__result--highlight' : ''}`}>
             <div className="nfc-scanner__label">Last Scanned UID:</div>
             <div className="nfc-scanner__uid">{lastScannedUid}</div>
           </div>

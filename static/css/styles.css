@@ -318,6 +318,19 @@ body {
   color: #ffae00;
   animation: pulse 1.5s ease-in-out infinite;
 }
+.nfc-scanner .nfc-scanner__receiving {
+  display: flex;
+  align-items: center;
+  color: #ffae00;
+  font-family: "Courier New", monospace;
+}
+.nfc-scanner .nfc-scanner__success {
+  display: flex;
+  align-items: center;
+  color: #3adb76;
+  font-weight: bold;
+  animation: successFlash 0.5s ease-out;
+}
 .nfc-scanner .nfc-scanner__ready {
   display: flex;
   align-items: center;
@@ -327,6 +340,14 @@ body {
   margin-top: 12px;
   padding-top: 12px;
   border-top: 1px solid #474747;
+  transition: all 0.3s ease;
+}
+.nfc-scanner .nfc-scanner__result--highlight {
+  background: rgba(58, 219, 118, 0.15);
+  border-radius: 4px;
+  padding: 12px;
+  margin: 12px -12px -12px -12px;
+  border-top: none;
 }
 .nfc-scanner .nfc-scanner__label {
   font-size: 12px;
@@ -425,6 +446,16 @@ body {
   to {
     opacity: 1;
     transform: translateX(-50%) translateY(0);
+  }
+}
+@keyframes successFlash {
+  0% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
   }
 }
 
