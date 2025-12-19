@@ -368,16 +368,58 @@ body {
   top: 10px;
   right: 10px;
   z-index: 1000;
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.9);
   border-radius: 8px;
   padding: 15px 20px;
-  min-width: 200px;
+  min-width: 280px;
+  border: 2px solid $gray;
+
+  .nfc-scanner__input-wrap {
+    margin-bottom: 12px;
+  }
+
+  .nfc-scanner__input-label {
+    display: block;
+    font-size: 11px;
+    color: $grayLight;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    letter-spacing: 1px;
+  }
+
+  .nfc-scanner__input {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 16px;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 2px;
+    background: $grayDark;
+    border: 2px solid $gray;
+    border-radius: 4px;
+    color: $green;
+    outline: none;
+    transition: border-color 0.2s ease;
+
+    &::placeholder {
+      color: $gray;
+      font-family: 'Titillium Web', sans-serif;
+      letter-spacing: normal;
+      font-size: 14px;
+    }
+
+    &:focus {
+      border-color: $green;
+      box-shadow: 0 0 0 3px rgba($green, 0.2);
+    }
+  }
 
   .nfc-scanner__status {
     display: flex;
     align-items: center;
     font-size: 14px;
     color: $grayLight;
+    padding: 8px 0;
+    border-top: 1px solid $gray;
   }
 
   .nfc-scanner__icon {
