@@ -148,11 +148,11 @@ class Display extends Component {
       this.setFrontLedColor(255, 0, 0);
       this.setLedBarsColor(255, 0, 0);
     } else {
-      // free/missing -> green
+      // free/missing -> blue (TEST: changed from green to verify deployment)
       // eslint-disable-next-line no-console
-      console.log('Setting LEDs -> GREEN (free)');
-      this.setFrontLedColor(0, 255, 0);
-      this.setLedBarsColor(0, 255, 0);
+      console.log('Setting LEDs -> BLUE (free)');
+      this.setFrontLedColor(0, 0, 255);
+      this.setLedBarsColor(0, 0, 255);
     }
   }
 
